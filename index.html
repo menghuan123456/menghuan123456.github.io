@@ -1,547 +1,239 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>✨ 女神节 · 予你星河浪漫 ✨</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>蝶梦星辰</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            /* 让所有元素不拦截点击事件，让点击可以穿透到document，方便触发撒花 */
-            pointer-events: none;
         }
-
         body {
-            min-height: 100vh;
-            background: radial-gradient(circle at 30% 30%, #ffe0f0, #ffb6c1, #f8a5c2);
-            background-attachment: fixed;
-            font-family: 'Dancing Script', 'Brush Script MT', 'Segoe Script', 'Pacifico', cursive, 'Microsoft YaHei', sans-serif;
-            overflow: hidden;  /* 防止滚动条 */
-            position: relative;
+            overflow: hidden;
+            background: radial-gradient(ellipse at center, #0a0e2a 0%, #000000 100%);
+            touch-action: none;
+            width: 100vw;
+            height: 100vh;
         }
-
-        /* 全屏画布 — 飘落花瓣与心 */
-        #romanceCanvas {
+        canvas {
+            display: block;
             position: fixed;
             top: 0;
             left: 0;
+        }
+        .title {
+            position: fixed;
+            top: 5vh;
+            left: 0;
             width: 100%;
-            height: 100%;
-            display: block;
-            z-index: 1;
-            pointer-events: none;  /* 让画布不拦截点击，鼠标事件穿透给document */
-        }
-
-        /* 中间磨砂玻璃卡片 — 浪漫祝语 */
-        .card {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: min(85%, 500px);
-            background: rgba(255, 245, 250, 0.25);
-            backdrop-filter: blur(18px) saturate(180%);
-            -webkit-backdrop-filter: blur(18px) saturate(180%);
-            border-radius: 60px 20px 60px 20px;
-            border: 2px solid rgba(255, 255, 255, 0.5);
-            box-shadow: 0 30px 50px rgba(255, 105, 180, 0.3), 0 0 0 2px rgba(255, 220, 240, 0.6) inset;
-            padding: 2.2rem 1.8rem;
             text-align: center;
-            z-index: 2;
-            color: #4a2b36;
-            text-shadow: 2px 2px 8px rgba(255, 255, 255, 0.8);
-            pointer-events: none;  /* 穿透点击，让点击卡片也能触发撒花 */
-            animation: float 6s ease-in-out infinite;
-        }
-
-        /* 微弱的浮动效果 */
-        @keyframes float {
-            0% { transform: translate(-50%, -50%); }
-            50% { transform: translate(-50%, -54%); }
-            100% { transform: translate(-50%, -50%); }
-        }
-
-        /* 3.8 大数字 */
-        .big-number {
-            font-size: 6.2rem;
-            line-height: 1;
-            font-weight: 700;
-            font-family: 'Pacifico', 'Brush Script MT', cursive;
-            color: #ff3b6f;
-            text-shadow: 0 0 25px #ffb3c6, 4px 8px 12px rgba(170, 70, 120, 0.3);
-            margin-bottom: 0.25rem;
-            letter-spacing: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 5px;
-        }
-        .big-number span {
-            display: inline-block;
-            filter: drop-shadow(0 6px 8px #ff9eb5);
-        }
-        .big-number .heart-icon {
-            font-size: 5rem;
-            transform: translateY(-5px);
-            color: #ff4d6d;
-            animation: heartbeat 1.4s infinite ease-in-out;
-        }
-        @keyframes heartbeat {
-            0% { transform: scale(1) translateY(-5px); }
-            30% { transform: scale(1.15) translateY(-8px); }
-            50% { transform: scale(1.08) translateY(-6px); }
-            70% { transform: scale(1.02) translateY(-5px); }
-            100% { transform: scale(1) translateY(-5px); }
-        }
-
-        /* 浪漫称呼 */
-        .greeting {
-            font-size: 2.2rem;
-            font-weight: 400;
-            margin-top: -5px;
-            color: #682c4c;
-            background: linear-gradient(135deg, #ff99aa, #ff6f91);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            text-shadow: 0 2px 10px #ffe2eb;
-        }
-
-        /* 主祝福文案 */
-        .message {
-            font-size: 1.35rem;
-            margin: 20px 0 10px;
-            line-height: 1.8;
-            font-family: 'Nunito', 'Microsoft YaHei', sans-serif;
-            font-weight: 500;
-            background: rgba(255, 255, 255, 0.5);
-            padding: 18px 15px;
-            border-radius: 50px 15px 50px 15px;
-            backdrop-filter: blur(4px);
-            border: 1px solid rgba(255, 255, 255, 0.9);
-            color: #571f3a;
-            box-shadow: 0 4px 15px rgba(255, 200, 220, 0.7);
-            text-shadow: 1px 1px 3px white;
-        }
-        .message i {
-            display: block;
-            margin-top: 12px;
-            font-size: 1.1rem;
-            color: #a13e5e;
-        }
-
-        /* 署名 */
-        .signature {
-            margin-top: 25px;
-            font-size: 1.8rem;
-            font-family: 'Dancing Script', cursive;
-            color: #ad3f67;
-            position: relative;
-            text-shadow: 0 2px 10px #ffbfd4;
-        }
-        .signature:before, .signature:after {
-            content: "💗";
-            font-size: 1.5rem;
-            margin: 0 10px;
-            opacity: 0.8;
-            display: inline-block;
-            animation: twinkle 2s infinite;
-        }
-        .signature:after {
-            content: "💗";
-            animation-delay: 0.3s;
-        }
-        @keyframes twinkle {
-            0% { opacity: 0.4; transform: scale(0.9); }
-            50% { opacity: 1; transform: scale(1.2); }
-            100% { opacity: 0.4; transform: scale(0.9); }
-        }
-
-        /* 轻点屏幕的小提示 */
-        .hint {
-            font-size: 1rem;
-            margin-top: 20px;
-            opacity: 0.9;
-            color: #802d50;
-            background: rgba(255, 230, 240, 0.6);
-            display: inline-block;
-            padding: 6px 22px;
-            border-radius: 40px;
-            backdrop-filter: blur(3px);
-            font-family: 'Nunito', sans-serif;
-            letter-spacing: 1px;
-            border: 1px solid white;
-            box-shadow: 0 2px 8px #ffbfcb;
-        }
-
-        /* 右下角小彩蛋装饰 (不受点击影响) */
-        .corner-emoji {
-            position: fixed;
-            bottom: 15px;
-            right: 20px;
-            font-size: 2.5rem;
-            z-index: 3;
-            opacity: 0.6;
+            color: rgba(255,255,255,0.85);
+            font-size: 22px;
+            letter-spacing: 2px;
             pointer-events: none;
-            animation: rotate 8s linear infinite;
-        }
-        .corner-emoji.left {
-            left: 20px;
-            right: auto;
-            animation: rotateReverse 10s infinite;
-        }
-        @keyframes rotate {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-        @keyframes rotateReverse {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(-360deg); }
+            z-index: 10;
+            text-shadow: 0 0 15px rgba(136, 101, 204, 0.8);
         }
     </style>
 </head>
 <body>
-
-    <!-- 浪漫飘落物画布 (花瓣/爱心/星星) -->
-    <canvas id="romanceCanvas"></canvas>
-
-    <!-- 磨砂玻璃卡片 核心祝福 -->
-    <div class="card">
-        <div class="big-number">
-            <span>3</span>
-            <span class="heart-icon">❤️</span>
-            <span>8</span>
-        </div>
-        <div class="greeting">🌷 我的女王 🌷</div>
-        <div class="message">
-            ✨ 愿你眼角带笑，岁月不染眉梢 ✨<br>
-            <i>做我永远偏爱的少女<br>温柔与浪漫，都只为你</i>
-        </div>
-        <div class="signature">爱你的 骑士</div>
-        <div class="hint">🌸 轻点屏幕 · 漫天花雨 🌸</div>
-    </div>
-
-    <!-- 两个可爱的角落装饰 -->
-    <div class="corner-emoji left">🌸🌼🌸</div>
-    <div class="corner-emoji">💐👑💐</div>
-
+    <div class="title">蝶梦星辰 · Butterfly Dream</div>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
     <script>
-        (function() {
-            // ==================== 浪漫粒子系统 ====================
-            const canvas = document.getElementById('romanceCanvas');
-            const ctx = canvas.getContext('2d');
+        // 基础渲染系统
+        const scene = new THREE.Scene();
+        scene.fog = new THREE.Fog(0x050718, 20, 60);
+        
+        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 0, 28);
 
-            // 浪漫字符集：爱心、花朵、花束、星星…… 全是温柔
-            const CHAR_SET = ['❤️', '🌸', '🌺', '🌷', '💐', '🌼', '🌹', '✨', '💕', '💖', '🌻', '🥀']; // 保留一点玫瑰与星星
-            // 颜色池：温柔的粉/红/紫/金
-            const COLOR_PALETTE = [
-                'rgba(255, 182, 193, {{op}})', // 浅粉
-                'rgba(255, 192, 203, {{op}})',
-                'rgba(255, 105, 180, {{op}})', // 热粉
-                'rgba(255, 20, 147, {{op}})',  // 深粉
-                'rgba(218, 112, 214, {{op}})', // 紫罗兰
-                'rgba(255, 160, 122, {{op}})', // 浅鲑鱼
-                'rgba(255, 215, 0, {{op}})',    // 金色星星
-                'rgba(240, 128, 128, {{op}})',
-                'rgba(255, 99, 132, {{op}})',
-                'rgba(221, 160, 221, {{op}})', // 梅色
-                'rgba(255, 228, 225, {{op}})'   // 玫瑰白
-            ];
+        const renderer = new THREE.WebGLRenderer({ 
+            antialias: true, 
+            alpha: true,
+            powerPreference: "high-performance"
+        });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        document.body.appendChild(renderer.domElement);
 
-            // 粒子数组
-            let particles = [];
-            let W, H;            // 逻辑宽高 (CSS像素)
-            let dpr = window.devicePixelRatio || 1;
+        // ============= 灯光系统 =============
+        const ambientLight = new THREE.AmbientLight(0x4a3d7a, 0.6);
+        scene.add(ambientLight);
 
-            // 控制粒子数量 (基础60～90)
-            const BASE_COUNT = 80;
-            let animationFrame = null;
-            let timeOffset = 0;   // 用于摆动相位
+        const light1 = new THREE.PointLight(0x9f7aea, 2.0, 35);
+        light1.position.set(12, 6, 8);
+        scene.add(light1);
 
-            // 获取窗口逻辑尺寸
-            function getViewportSize() {
-                return {
-                    width: window.innerWidth,
-                    height: window.innerHeight
-                };
-            }
+        const light2 = new THREE.PointLight(0xe684c8, 1.8, 30);
+        light2.position.set(-12, -6, 8);
+        scene.add(light2);
 
-            // 初始化或重置所有粒子 (根据当前窗口大小)
-            function initParticles() {
-                const size = getViewportSize();
-                W = size.width;
-                H = size.height;
+        // ============= 星空星云粒子 =============
+        function createStarField() {
+            const starGeo = new THREE.BufferGeometry();
+            const count = 1800;
+            const positions = new Float32Array(count * 3);
+            const colors = new Float32Array(count * 3);
+            const sizes = new Float32Array(count);
 
-                // 重新初始化粒子数组
-                particles = [];
-                const count = Math.min(BASE_COUNT, Math.floor(W * H / 12000) + 50); // 动态调整防止太密或太疏
-                for (let i = 0; i < count; i++) {
-                    particles.push(createRandomParticle(true)); // true表示随机位置
-                }
-            }
-
-            // 生成一个随机粒子 (可选是否随机位置)
-            function createRandomParticle(randomPosition = true) {
-                const size = getViewportSize();
-                const w = size.width;
-                const h = size.height;
-
-                // 随机字符
-                const char = CHAR_SET[Math.floor(Math.random() * CHAR_SET.length)];
-                // 随机大小 (14px ~ 38px)
-                const fontSize = Math.floor(Math.random() * 24 + 16); // 16~40
-                // 基础速度 0.4~1.6
-                const speed = Math.random() * 1.2 + 0.4;
-                // 透明度 0.65~1
-                const opacity = Math.random() * 0.35 + 0.65;
-                // 随机颜色 (替换透明度)
-                const colorTemplate = COLOR_PALETTE[Math.floor(Math.random() * COLOR_PALETTE.length)];
-                const color = colorTemplate.replace('{{op}}', opacity.toFixed(2));
-                // 左右摇摆幅度 0.5~2.2
-                const swayAmp = Math.random() * 1.8 + 0.4;
-                // 相位差
-                const phase = Math.random() * Math.PI * 2;
-
-                let x, y;
-                if (randomPosition) {
-                    x = Math.random() * w;
-                    y = Math.random() * h * 0.8 - 50; // 部分在可见区域，部分在顶部外
-                } else {
-                    x = w / 2;
-                    y = h / 2;
-                }
-
-                return {
-                    x, y,
-                    char,
-                    fontSize,
-                    speed,
-                    color,
-                    swayAmp,
-                    phase,
-                    opacity,
-                    baseX: x,      // 摆动中心 x，初始为 x，但之后会动态更新(不影响重置)
-                };
-            }
-
-            // 重置一个已经存在的粒子（飘出底部后重新放到顶部）
-            function resetParticle(p) {
-                const size = getViewportSize();
-                p.x = Math.random() * size.width;
-                p.y = -20 - Math.random() * 50;                 // 从顶部外面重新出现
-                // 同时随机刷新属性，让飘落物更丰富
-                p.char = CHAR_SET[Math.floor(Math.random() * CHAR_SET.length)];
-                p.fontSize = Math.floor(Math.random() * 24 + 16);
-                p.speed = Math.random() * 1.2 + 0.4;
-                p.opacity = Math.random() * 0.35 + 0.65;
-                const colorTemplate = COLOR_PALETTE[Math.floor(Math.random() * COLOR_PALETTE.length)];
-                p.color = colorTemplate.replace('{{op}}', p.opacity.toFixed(2));
-                p.swayAmp = Math.random() * 1.8 + 0.4;
-                p.phase = Math.random() * Math.PI * 2;
-            }
-
-            // 更新粒子位置 (基于时间和摇摆)
-            function updateParticles(now) {
-                if (!W || !H) return;
-                // 使用正弦波左右摆动，随时间变化
-                const time = now * 0.002; // 控制摆动频率
-                for (let p of particles) {
-                    // 水平摆动 = 中心x + 振幅 * sin(时间 + 相位)
-                    // 但中心x应固定为粒子的“基线x”，但是为了自然摆动，我们不希望它一直偏右，需要保留初始x还是动态更新？
-                    // 为了简单：每次都相对于原始x摆动，但若我们重置粒子时x重置，那么原始x即为重置x。然而随着摆动，基线不应该变。
-                    // 因此我们给每个粒子存储一个originX，当重置或创建时设置。
-                    // 但是之前没有存储originX，而是直接用x叠加。为了防止不断偏移，我们重构一下：存储originX
-                    // 简单修正： 我们直接使用p.originX作为摆动中心。
-                    // 为了兼容已有粒子，如果p.originX === undefined，设置p.originX = p.x
-                    if (p.originX === undefined) p.originX = p.x;
-                    
-                    // 摆动偏移
-                    const offsetX = Math.sin(time + p.phase) * p.swayAmp;
-                    p.x = p.originX + offsetX;
-
-                    // 向下移动
-                    p.y += p.speed;
-
-                    // 边界检查：超出底部 或 完全不可见(左侧/右侧太远)
-                    const margin = 50;
-                    if (p.y > H + 100 || p.x < -100 || p.x > W + 100) {
-                        // 重置粒子到顶部
-                        p.originX = Math.random() * W;
-                        p.x = p.originX;
-                        p.y = -20 - Math.random() * 50;
-                        // 顺便更新一下属性，增加变化
-                        p.char = CHAR_SET[Math.floor(Math.random() * CHAR_SET.length)];
-                        p.fontSize = Math.floor(Math.random() * 24 + 16);
-                        p.speed = Math.random() * 1.2 + 0.4;
-                        p.opacity = Math.random() * 0.35 + 0.65;
-                        const colorTemplate = COLOR_PALETTE[Math.floor(Math.random() * COLOR_PALETTE.length)];
-                        p.color = colorTemplate.replace('{{op}}', p.opacity.toFixed(2));
-                        p.swayAmp = Math.random() * 1.8 + 0.4;
-                        p.phase = Math.random() * Math.PI * 2;
-                    } else {
-                        // 正常摆动后更新originX？ 不，我们保持originX不变，但每次摆动重新计算x。而随着移动，originX应该保持不变，
-                        // 但粒子可能因为风力或者其他重置才改变originX。所以我们这里不更新originX。
-                        // 但是我们在点击新增粒子时，会设置originX。
-                    }
-                }
-            }
-
-            // 绘制所有粒子
-            function drawParticles() {
-                if (!ctx) return;
-                // 清除画布
-                ctx.clearRect(0, 0, W, H);
-
-                // 配置文字绘制
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
+            for (let i = 0; i < count; i++) {
+                positions[i*3] = (Math.random() - 0.5) * 700;
+                positions[i*3+1] = (Math.random() - 0.5) * 450;
+                positions[i*3+2] = (Math.random() - 0.5) * 700;
                 
-                for (let p of particles) {
-                    ctx.font = `${p.fontSize}px 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', 'Helvetica Neue', 'PingFang SC', 'Microsoft YaHei', sans-serif`;
-                    ctx.fillStyle = p.color;
-                    // 轻微发光效果 (少量粒子)
-                    if (p.char === '✨' || p.char === '💖') {
-                        ctx.shadowColor = 'rgba(255, 223, 246, 0.9)';
-                        ctx.shadowBlur = 12;
-                    } else {
-                        ctx.shadowColor = 'rgba(255, 192, 203, 0.7)';
-                        ctx.shadowBlur = 8;
-                    }
-                    // 绘制字符
-                    ctx.fillText(p.char, p.x, p.y);
-                }
-                // 重置阴影
-                ctx.shadowBlur = 0;
-            }
-
-            // 动画循环
-            function animate(timestamp) {
-                if (!W || !H) {
-                    const size = getViewportSize();
-                    W = size.width;
-                    H = size.height;
-                }
-                updateParticles(timestamp);
-                drawParticles();
-                animationFrame = requestAnimationFrame(animate);
-            }
-
-            // 重置canvas尺寸 + 比例适配高清屏
-            function resizeCanvasAndParticles() {
-                const size = getViewportSize();
-                W = size.width;
-                H = size.height;
-
-                dpr = window.devicePixelRatio || 1;
-                canvas.style.width = W + 'px';
-                canvas.style.height = H + 'px';
-                canvas.width = W * dpr;
-                canvas.height = H * dpr;
-
-                // 缩放上下文，之后绘制使用逻辑像素
-                ctx.setTransform(1, 0, 0, 1, 0, 0); // 重置变换
-                ctx.scale(dpr, dpr);
-
-                // 重新初始化粒子，适应新窗口
-                initParticles();
-            }
-
-            // ========== 点击撒花（浪漫彩蛋） ==========
-            function addFireworks(e) {
-                // 获取点击坐标 (逻辑像素)
-                let clientX, clientY;
-                if (e.touches) {
-                    // 移动端触摸
-                    clientX = e.touches[0].clientX;
-                    clientY = e.touches[0].clientY;
+                const mix = Math.random();
+                if(mix > 0.85) {
+                    colors[i*3] = 1; colors[i*3+1] = 0.85; colors[i*3+2] = 1;
+                } else if(mix > 0.6) {
+                    colors[i*3] = 0.75; colors[i*3+1] = 0.65; colors[i*3+2] = 1;
                 } else {
-                    clientX = e.clientX;
-                    clientY = e.clientY;
+                    colors[i*3] = 0.55; colors[i*3+1] = 0.55; colors[i*3+2] = 0.95;
                 }
-
-                // 边界保护
-                if (!W || !H) return;
-
-                // 生成 6～10 个新粒子
-                const newCount = Math.floor(Math.random() * 5) + 6; // 6~10
-                for (let i = 0; i < newCount; i++) {
-                    // 随机偏移 ±45px
-                    const offsetX = (Math.random() - 0.5) * 90;
-                    const offsetY = (Math.random() - 0.5) * 90;
-                    let x = clientX + offsetX;
-                    let y = clientY + offsetY;
-
-                    // 限制边界，避免太偏
-                    x = Math.min(W - 10, Math.max(10, x));
-                    y = Math.min(H - 20, Math.max(10, y));
-
-                    // 创建新粒子（随机大部分属性，但位置基于点击）
-                    const char = CHAR_SET[Math.floor(Math.random() * CHAR_SET.length)];
-                    const fontSize = Math.floor(Math.random() * 24 + 18);
-                    const speed = Math.random() * 1.5 + 0.6;
-                    const opacity = Math.random() * 0.4 + 0.6;
-                    const colorTemplate = COLOR_PALETTE[Math.floor(Math.random() * COLOR_PALETTE.length)];
-                    const color = colorTemplate.replace('{{op}}', opacity.toFixed(2));
-                    const swayAmp = Math.random() * 2.0 + 0.5;
-                    const phase = Math.random() * Math.PI * 2;
-
-                    particles.push({
-                        x: x,
-                        y: y,
-                        originX: x,
-                        char,
-                        fontSize,
-                        speed,
-                        color,
-                        swayAmp,
-                        phase,
-                        opacity
-                    });
-                }
-
-                // 控制粒子总数不超过 200，避免太卡 (温柔限制)
-                if (particles.length > 220) {
-                    // 移除最早的一部分粒子 (前40个)
-                    particles.splice(0, 40);
-                }
+                sizes[i] = Math.random() * 3.0 + 0.5;
             }
 
-            // ========== 事件绑定 ==========
-            function bindEvents() {
-                // 监听点击和触摸，触发撒花
-                document.addEventListener('click', addFireworks);
-                document.addEventListener('touchstart', addFireworks, { passive: true });
+            starGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            starGeo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+            starGeo.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
 
-                // 窗口大小变化时，重置画布尺寸 & 粒子 (防抖)
-                let resizeTimer;
-                window.addEventListener('resize', () => {
-                    clearTimeout(resizeTimer);
-                    resizeTimer = setTimeout(() => {
-                        resizeCanvasAndParticles();
-                    }, 100);
-                });
-            }
-
-            // ========== 启动一切 ==========
-            function startRomance() {
-                resizeCanvasAndParticles();  // 初始化尺寸与粒子
-                bindEvents();
-                // 开启动画
-                if (animationFrame) cancelAnimationFrame(animationFrame);
-                animationFrame = requestAnimationFrame(animate);
-            }
-
-            startRomance();
-
-            // 清理animationFrame (理论上页面关闭自动停止，但作为好习惯)
-            window.addEventListener('beforeunload', () => {
-                if (animationFrame) {
-                    cancelAnimationFrame(animationFrame);
-                }
+            const starMat = new THREE.PointsMaterial({
+                size: 1, transparent: true, opacity: 0.95,
+                vertexColors: true, blending: THREE.AdditiveBlending,
+                sizeAttenuation: true
             });
-        })();
+            return new THREE.Points(starGeo, starMat);
+        }
+        const stars = createStarField();
+        scene.add(stars);
+
+        // ============= 带贴图的真实蝴蝶 =============
+        function createRealButterfly() {
+            const butterfly = new THREE.Group();
+            
+            // 身体
+            const bodyGeo = new THREE.CylinderGeometry(0.25, 0.3, 4.5, 12);
+            const bodyMat = new THREE.MeshPhysicalMaterial({
+                color: 0x222222, metalness: 0.3, roughness: 0.4
+            });
+            const body = new THREE.Mesh(bodyGeo, bodyMat);
+            body.rotation.x = Math.PI / 2;
+            body.position.y = 0;
+            butterfly.add(body);
+
+            // 加载蝴蝶翅膀贴图（透明纹理）
+            const textureLoader = new THREE.TextureLoader();
+            const wingTexture = textureLoader.load('https://i.imgur.com/8KZJzH8.png');
+            const alphaTexture = textureLoader.load('https://i.imgur.com/8KZJzH8.png');
+            
+            // 翅膀材质（带贴图 + 透明 + 高光）
+            const wingMat = new THREE.MeshPhysicalMaterial({
+                map: wingTexture,
+                alphaMap: alphaTexture,
+                transparent: true,
+                side: THREE.DoubleSide,
+                roughness: 0.2,
+                metalness: 0.1,
+                opacity: 0.95
+            });
+
+            // 前翅
+            const frontWingGeo = new THREE.PlaneGeometry(10, 6);
+            const leftFront = new THREE.Mesh(frontWingGeo, wingMat);
+            leftFront.position.set(-4.5, 1.2, 0);
+            leftFront.rotation.z = Math.PI / 5;
+            butterfly.add(leftFront);
+
+            const rightFront = new THREE.Mesh(frontWingGeo, wingMat);
+            rightFront.position.set(4.5, 1.2, 0);
+            rightFront.rotation.z = -Math.PI / 5;
+            butterfly.add(rightFront);
+
+            // 后翅
+            const backWingGeo = new THREE.PlaneGeometry(8, 5);
+            const leftBack = new THREE.Mesh(backWingGeo, wingMat);
+            leftBack.position.set(-3.8, -1.5, 0);
+            leftBack.rotation.z = Math.PI / 6;
+            butterfly.add(leftBack);
+
+            const rightBack = new THREE.Mesh(backWingGeo, wingMat);
+            rightBack.position.set(3.8, -1.5, 0);
+            rightBack.rotation.z = -Math.PI / 6;
+            butterfly.add(rightBack);
+
+            // 触角
+            const antGeo = new THREE.CylinderGeometry(0.06, 0.06, 2.8, 6);
+            const ant1 = new THREE.Mesh(antGeo, bodyMat);
+            ant1.position.set(-0.5, 3.0, 0);
+            ant1.rotation.z = Math.PI / 5;
+            butterfly.add(ant1);
+
+            const ant2 = new THREE.Mesh(antGeo, bodyMat);
+            ant2.position.set(0.5, 3.0, 0);
+            ant2.rotation.z = -Math.PI / 5;
+            butterfly.add(ant2);
+
+            butterfly.position.set(0, 0, -15);
+            return butterfly;
+        }
+        const butterfly = createRealButterfly();
+        scene.add(butterfly);
+
+        // ============= 动画系统 =============
+        let time = 0;
+        function animate() {
+            requestAnimationFrame(animate);
+            time += 0.008;
+
+            // 翅膀扇动
+            const flap = Math.sin(time * 6) * 0.55;
+            butterfly.children[1].rotation.z = Math.PI / 5 + flap;
+            butterfly.children[2].rotation.z = -Math.PI / 5 - flap;
+            butterfly.children[3].rotation.z = Math.PI / 6 + flap * 0.7;
+            butterfly.children[4].rotation.z = -Math.PI / 6 - flap * 0.7;
+
+            // 蝴蝶飘逸
+            butterfly.position.y = Math.sin(time * 1.2) * 2.2;
+            butterfly.rotation.y = Math.sin(time * 0.4) * 0.35;
+            butterfly.rotation.x = Math.sin(time * 0.3) * 0.15;
+
+            // 星空旋转
+            stars.rotation.y += 0.0012;
+            stars.rotation.x += 0.0005;
+
+            // 光影呼吸
+            light1.intensity = 2.0 + Math.sin(time * 1.5) * 0.5;
+            light2.intensity = 1.8 + Math.sin(time * 1.7) * 0.5;
+
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        // ============= 移动端触摸交互 =============
+        let mouseX = 0, mouseY = 0;
+        document.addEventListener('touchmove', (e) => {
+            const x = e.touches[0].clientX / window.innerWidth - 0.5;
+            const y = e.touches[0].clientY / window.innerHeight - 0.5;
+            mouseX = x * 2.5;
+            mouseY = y * 2;
+        });
+
+        function updateCamera() {
+            camera.position.x += (mouseX - camera.position.x) * 0.05;
+            camera.position.y += (-mouseY - camera.position.y) * 0.05;
+            camera.lookAt(0,0,-10);
+            requestAnimationFrame(updateCamera);
+        }
+        updateCamera();
+
+        // ============= 响应式 =============
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
     </script>
 </body>
 </html>
