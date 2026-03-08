@@ -2,237 +2,156 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>蝶梦星辰</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>女神节快乐</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            overflow: hidden;
-            background: radial-gradient(ellipse at center, #0a0e2a 0%, #000000 100%);
-            touch-action: none;
-            width: 100vw;
-            height: 100vh;
-        }
-        canvas {
-            display: block;
+        body { margin: 0; overflow: hidden; background: #160016; }
+        /* 女神节祝福文字 */
+        .blessing {
             position: fixed;
-            top: 0;
-            left: 0;
-        }
-        .title {
-            position: fixed;
-            top: 5vh;
-            left: 0;
-            width: 100%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #ff9ff3;
+            font-size: 32px;
+            font-weight: bold;
             text-align: center;
-            color: rgba(255,255,255,0.85);
-            font-size: 22px;
-            letter-spacing: 2px;
+            text-shadow: 0 0 20px #ff6b6b, 0 0 40px #ff9ff3;
             pointer-events: none;
-            z-index: 10;
-            text-shadow: 0 0 15px rgba(136, 101, 204, 0.8);
+            z-index: 999;
+            letter-spacing: 2px;
+            animation: glow 2s infinite alternate;
+            font-family: "Microsoft YaHei", sans-serif;
+        }
+        @keyframes glow {
+            from { opacity: 0.8; transform: translate(-50%, -50%) scale(1); }
+            to { opacity: 1; transform: translate(-50%, -50%) scale(1.08); }
         }
     </style>
 </head>
 <body>
-    <div class="title">蝶梦星辰 · Butterfly Dream</div>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
-    <script>
-        // 基础渲染系统
-        const scene = new THREE.Scene();
-        scene.fog = new THREE.Fog(0x050718, 20, 60);
-        
-        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.set(0, 0, 28);
+    <div class="blessing">祝 全 部 女 神 节 日 快 乐 🎀</div>
 
-        const renderer = new THREE.WebGLRenderer({ 
-            antialias: true, 
-            alpha: true,
-            powerPreference: "high-performance"
-        });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
-        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    <script type="module">
+        import * as THREE from "https://cdn.skypack.dev/three@0.136.0";
+        import {OrbitControls} from "https://cdn.skypack.dev/three@0.136.0/examples/jsm/controls/OrbitControls";
+
+        console.clear();
+
+        let scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x160016);
+        let camera = new THREE.PerspectiveCamera(60, innerWidth / innerHeight, 1, 1000);
+        camera.position.set(0, 4, 21);
+        let renderer = new THREE.WebGLenderer({ antialias: true });
+        renderer.setSize(innerWidth, innerHeight);
         document.body.appendChild(renderer.domElement);
+        window.addEventListener("resize", event => {
+          camera.aspect = innerWidth / innerHeight;
+          camera.updateProjectionMatrix();
+          renderer.setSize(innerWidth, innerHeight);
+        })
 
-        // ============= 灯光系统 =============
-        const ambientLight = new THREE.AmbientLight(0x4a3d7a, 0.6);
-        scene.add(ambientLight);
+        let controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.enablePan = false;
 
-        const light1 = new THREE.PointLight(0x9f7aea, 2.0, 35);
-        light1.position.set(12, 6, 8);
-        scene.add(light1);
-
-        const light2 = new THREE.PointLight(0xe684c8, 1.8, 30);
-        light2.position.set(-12, -6, 8);
-        scene.add(light2);
-
-        // ============= 星空星云粒子 =============
-        function createStarField() {
-            const starGeo = new THREE.BufferGeometry();
-            const count = 1800;
-            const positions = new Float32Array(count * 3);
-            const colors = new Float32Array(count * 3);
-            const sizes = new Float32Array(count);
-
-            for (let i = 0; i < count; i++) {
-                positions[i*3] = (Math.random() - 0.5) * 700;
-                positions[i*3+1] = (Math.random() - 0.5) * 450;
-                positions[i*3+2] = (Math.random() - 0.5) * 700;
-                
-                const mix = Math.random();
-                if(mix > 0.85) {
-                    colors[i*3] = 1; colors[i*3+1] = 0.85; colors[i*3+2] = 1;
-                } else if(mix > 0.6) {
-                    colors[i*3] = 0.75; colors[i*3+1] = 0.65; colors[i*3+2] = 1;
-                } else {
-                    colors[i*3] = 0.55; colors[i*3+1] = 0.55; colors[i*3+2] = 0.95;
-                }
-                sizes[i] = Math.random() * 3.0 + 0.5;
-            }
-
-            starGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-            starGeo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-            starGeo.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
-
-            const starMat = new THREE.PointsMaterial({
-                size: 1, transparent: true, opacity: 0.95,
-                vertexColors: true, blending: THREE.AdditiveBlending,
-                sizeAttenuation: true
-            });
-            return new THREE.Points(starGeo, starMat);
+        let gu = {
+          time: {value: 0}
         }
-        const stars = createStarField();
-        scene.add(stars);
 
-        // ============= 带贴图的真实蝴蝶 =============
-        function createRealButterfly() {
-            const butterfly = new THREE.Group();
-            
-            // 身体
-            const bodyGeo = new THREE.CylinderGeometry(0.25, 0.3, 4.5, 12);
-            const bodyMat = new THREE.MeshPhysicalMaterial({
-                color: 0x222222, metalness: 0.3, roughness: 0.4
-            });
-            const body = new THREE.Mesh(bodyGeo, bodyMat);
-            body.rotation.x = Math.PI / 2;
-            body.position.y = 0;
-            butterfly.add(body);
-
-            // 加载蝴蝶翅膀贴图（透明纹理）
-            const textureLoader = new THREE.TextureLoader();
-            const wingTexture = textureLoader.load('https://i.imgur.com/8KZJzH8.png');
-            const alphaTexture = textureLoader.load('https://i.imgur.com/8KZJzH8.png');
-            
-            // 翅膀材质（带贴图 + 透明 + 高光）
-            const wingMat = new THREE.MeshPhysicalMaterial({
-                map: wingTexture,
-                alphaMap: alphaTexture,
-                transparent: true,
-                side: THREE.DoubleSide,
-                roughness: 0.2,
-                metalness: 0.1,
-                opacity: 0.95
-            });
-
-            // 前翅
-            const frontWingGeo = new THREE.PlaneGeometry(10, 6);
-            const leftFront = new THREE.Mesh(frontWingGeo, wingMat);
-            leftFront.position.set(-4.5, 1.2, 0);
-            leftFront.rotation.z = Math.PI / 5;
-            butterfly.add(leftFront);
-
-            const rightFront = new THREE.Mesh(frontWingGeo, wingMat);
-            rightFront.position.set(4.5, 1.2, 0);
-            rightFront.rotation.z = -Math.PI / 5;
-            butterfly.add(rightFront);
-
-            // 后翅
-            const backWingGeo = new THREE.PlaneGeometry(8, 5);
-            const leftBack = new THREE.Mesh(backWingGeo, wingMat);
-            leftBack.position.set(-3.8, -1.5, 0);
-            leftBack.rotation.z = Math.PI / 6;
-            butterfly.add(leftBack);
-
-            const rightBack = new THREE.Mesh(backWingGeo, wingMat);
-            rightBack.position.set(3.8, -1.5, 0);
-            rightBack.rotation.z = -Math.PI / 6;
-            butterfly.add(rightBack);
-
-            // 触角
-            const antGeo = new THREE.CylinderGeometry(0.06, 0.06, 2.8, 6);
-            const ant1 = new THREE.Mesh(antGeo, bodyMat);
-            ant1.position.set(-0.5, 3.0, 0);
-            ant1.rotation.z = Math.PI / 5;
-            butterfly.add(ant1);
-
-            const ant2 = new THREE.Mesh(antGeo, bodyMat);
-            ant2.position.set(0.5, 3.0, 0);
-            ant2.rotation.z = -Math.PI / 5;
-            butterfly.add(ant2);
-
-            butterfly.position.set(0, 0, -15);
-            return butterfly;
+        let sizes = [];
+        let shift = [];
+        let pushShift = () => {
+          shift.push(
+            Math.random() * Math.PI, 
+            Math.random() * Math.PI * 2, 
+            (Math.random() * 0.9 + 0.1) * Math.PI * 0.1,
+            Math.random() * 0.9 + 0.1
+          );
         }
-        const butterfly = createRealButterfly();
-        scene.add(butterfly);
-
-        // ============= 动画系统 =============
-        let time = 0;
-        function animate() {
-            requestAnimationFrame(animate);
-            time += 0.008;
-
-            // 翅膀扇动
-            const flap = Math.sin(time * 6) * 0.55;
-            butterfly.children[1].rotation.z = Math.PI / 5 + flap;
-            butterfly.children[2].rotation.z = -Math.PI / 5 - flap;
-            butterfly.children[3].rotation.z = Math.PI / 6 + flap * 0.7;
-            butterfly.children[4].rotation.z = -Math.PI / 6 - flap * 0.7;
-
-            // 蝴蝶飘逸
-            butterfly.position.y = Math.sin(time * 1.2) * 2.2;
-            butterfly.rotation.y = Math.sin(time * 0.4) * 0.35;
-            butterfly.rotation.x = Math.sin(time * 0.3) * 0.15;
-
-            // 星空旋转
-            stars.rotation.y += 0.0012;
-            stars.rotation.x += 0.0005;
-
-            // 光影呼吸
-            light1.intensity = 2.0 + Math.sin(time * 1.5) * 0.5;
-            light2.intensity = 1.8 + Math.sin(time * 1.7) * 0.5;
-
-            renderer.render(scene, camera);
+        let pts = new Array(50000).fill().map(p => {
+          sizes.push(Math.random() * 1.5 + 0.5);
+          pushShift();
+          return new THREE.Vector3().randomDirection().multiplyScalar(Math.random() * 0.5 + 9.5);
+        })
+        for(let i = 0; i < 100000; i++){
+          let r = 10, R = 40;
+          let rand = Math.pow(Math.random(), 1.5);
+          let radius = Math.sqrt(R * R * rand + (1 - rand) * r * r);
+          pts.push(new THREE.Vector3().setFromCylindricalCoords(radius, Math.random() * 2 * Math.PI, (Math.random() - 0.5) * 2 ));
+          sizes.push(Math.random() * 1.5 + 0.5);
+          pushShift();
         }
-        animate();
 
-        // ============= 移动端触摸交互 =============
-        let mouseX = 0, mouseY = 0;
-        document.addEventListener('touchmove', (e) => {
-            const x = e.touches[0].clientX / window.innerWidth - 0.5;
-            const y = e.touches[0].clientY / window.innerHeight - 0.5;
-            mouseX = x * 2.5;
-            mouseY = y * 2;
+        let g = new THREE.BufferGeometry().setFromPoints(pts);
+        g.setAttribute("sizes", new THREE.Float32BufferAttribute(sizes, 1));
+        g.setAttribute("shift", new THREE.Float32BufferAttribute(shift, 4));
+        let m = new THREE.PointsMaterial({
+          size: 0.125,
+          transparent: true,
+          depthTest: false,
+          blending: THREE.AdditiveBlending,
+          onBeforeCompile: shader => {
+            shader.uniforms.time = gu.time;
+            shader.vertexShader = `
+              uniform float time;
+              attribute float sizes;
+              attribute vec4 shift;
+              varying vec3 vColor;
+              ${shader.vertexShader}
+            `.replace(
+              `gl_PointSize = size;`,
+              `gl_PointSize = size * sizes;`
+            ).replace(
+              `#include <color_vertex>`,
+              `#include <color_vertex>
+                float d = length(abs(position) / vec3(40., 10., 40));
+                d = clamp(d, 0., 1.);
+                // 女神节粉紫渐变配色
+                vColor = mix(vec3(255., 159., 243.), vec3(104., 109., 224.), d) / 255.;
+              `
+            ).replace(
+              `#include <begin_vertex>`,
+              `#include <begin_vertex>
+                float t = time;
+                float moveT = mod(shift.x + shift.z * t, PI2);
+                float moveS = mod(shift.y + shift.z * t, PI2);
+                transformed += vec3(cos(moveS) * sin(moveT), cos(moveT), sin(moveS) * sin(moveT)) * shift.w;
+              `
+            );
+            shader.fragmentShader = `
+              varying vec3 vColor;
+              ${shader.fragmentShader}
+            `.replace(
+              `#include <clipping_planes_fragment>`,
+              `#include <clipping_planes_fragment>
+                float d = length(gl_PointCoord.xy - 0.5);
+              `
+            ).replace(
+              `vec4 diffuseColor = vec4( diffuse, opacity );`,
+              `vec4 diffuseColor = vec4( vColor, smoothstep(0.5, 0.1, d) );`
+            );
+          }
         });
+        let p = new THREE.Points(g, m);
+        p.rotation.order = "ZYX";
+        p.rotation.z = 0.2;
+        scene.add(p)
 
-        function updateCamera() {
-            camera.position.x += (mouseX - camera.position.x) * 0.05;
-            camera.position.y += (-mouseY - camera.position.y) * 0.05;
-            camera.lookAt(0,0,-10);
-            requestAnimationFrame(updateCamera);
-        }
-        updateCamera();
+        let clock = new THREE.Clock();
 
-        // ============= 响应式 =============
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setAnimationLoop(() => {
+          controls.update();
+          let t = clock.getElapsedTime() * 0.5;
+          gu.time.value = t * Math.PI;
+          p.rotation.y = t * 0.05;
+          
+          // ========== 核心新增：场景收缩跳动动画 ==========
+          let pulse = Math.sin(t * 3) * 0.15 + 1; // 跳动频率
+          p.scale.set(pulse, pulse, pulse);     // 整体缩放脉动
+          camera.position.z = 21 + Math.sin(t * 2.5) * 1.2; // 镜头呼吸感
+          
+          renderer.render(scene, camera);
         });
     </script>
 </body>
